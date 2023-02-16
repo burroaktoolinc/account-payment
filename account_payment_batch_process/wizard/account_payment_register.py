@@ -420,18 +420,12 @@ class AccountPaymentRegister(models.TransientModel):
                 (payment_lines + lines).filtered_domain(
                     [("account_id", "=", account.id), ("reconciled", "=", False)]
                 ).reconcile()
-            if any(
+            invoices_diff_reconcile = invoices.filtered(
+                lambda inv:
                 group_data[partner]["inv_val"][inv.id]["payment_difference_handling"]
                 == "reconcile"
-                for inv in invoices
-            ):
-                for inv in invoices:
-                    if (
-                        group_data[partner]["inv_val"][inv.id][
-                            "payment_difference_handling"
-                        ]
-                        == "reconcile"
-                    ):
+            )
+            for inv in invoices_diff_reconcile:
                         inv.write(
                             {
                                 "discount_taken": abs(
